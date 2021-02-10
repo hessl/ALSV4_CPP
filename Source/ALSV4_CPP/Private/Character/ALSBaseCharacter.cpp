@@ -52,19 +52,19 @@ void AALSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight/Left", this, &AALSBaseCharacter::PlayerRightMovementInput);
 	PlayerInputComponent->BindAxis("LookUp/Down", this, &AALSBaseCharacter::PlayerCameraUpInput);
 	PlayerInputComponent->BindAxis("LookLeft/Right", this, &AALSBaseCharacter::PlayerCameraRightInput);
-	PlayerInputComponent->BindAction("JumpAction", IE_Pressed, this, &AALSBaseCharacter::JumpPressedAction);
-	PlayerInputComponent->BindAction("JumpAction", IE_Released, this, &AALSBaseCharacter::JumpReleasedAction);
-	PlayerInputComponent->BindAction("StanceAction", IE_Pressed, this, &AALSBaseCharacter::StancePressedAction);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AALSBaseCharacter::JumpPressedAction);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AALSBaseCharacter::JumpReleasedAction);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AALSBaseCharacter::StancePressedAction);
 	PlayerInputComponent->BindAction("WalkAction", IE_Pressed, this, &AALSBaseCharacter::WalkPressedAction);
 	PlayerInputComponent->BindAction("RagdollAction", IE_Pressed, this, &AALSBaseCharacter::RagdollPressedAction);
 	PlayerInputComponent->BindAction("SelectRotationMode_1", IE_Pressed, this,
 	                                 &AALSBaseCharacter::VelocityDirectionPressedAction);
 	PlayerInputComponent->BindAction("SelectRotationMode_2", IE_Pressed, this,
 	                                 &AALSBaseCharacter::LookingDirectionPressedAction);
-	PlayerInputComponent->BindAction("SprintAction", IE_Pressed, this, &AALSBaseCharacter::SprintPressedAction);
-	PlayerInputComponent->BindAction("SprintAction", IE_Released, this, &AALSBaseCharacter::SprintReleasedAction);
-	PlayerInputComponent->BindAction("AimAction", IE_Pressed, this, &AALSBaseCharacter::AimPressedAction);
-	PlayerInputComponent->BindAction("AimAction", IE_Released, this, &AALSBaseCharacter::AimReleasedAction);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AALSBaseCharacter::SprintPressedAction);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AALSBaseCharacter::SprintReleasedAction);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &AALSBaseCharacter::AimPressedAction);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &AALSBaseCharacter::AimReleasedAction);
 	PlayerInputComponent->BindAction("CameraAction", IE_Pressed, this, &AALSBaseCharacter::CameraPressedAction);
 	PlayerInputComponent->BindAction("CameraAction", IE_Released, this, &AALSBaseCharacter::CameraReleasedAction);
 }
@@ -90,6 +90,8 @@ void AALSBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, RotationMode, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, OverlayState, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, ViewMode, COND_SkipOwner);
+
+	DOREPLIFETIME(AALSBaseCharacter, bIsTrueAiming);
 }
 
 void AALSBaseCharacter::OnBreakfall_Implementation()
@@ -275,6 +277,8 @@ void AALSBaseCharacter::RagdollEnd()
 		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		MainAnimInstance->Montage_Play(GetGetUpAnimation(bRagdollFaceUp),
 		                               1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+		GetMesh()->AttachTo(GetCapsuleComponent(), NAME_None, EAttachLocation::SnapToTargetIncludingScale, true);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -92.0), FQuat(FRotator(0, -90, 0)));
 	}
 	else
 	{
@@ -285,8 +289,12 @@ void AALSBaseCharacter::RagdollEnd()
 	// Step 3: Re-Enable capsule collision, and disable physics simulation on the mesh.
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionObjectType(ECC_Pawn);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetAllBodiesSimulatePhysics(false);
+
+	// Landon ragdoll fix, don't work
+	//GetMesh()->AttachTo(GetCapsuleComponent(), NAME_None, EAttachLocation::SnapToTargetIncludingScale, true);
+	//GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -92.0), FQuat(FRotator(0, -90, 0)));
 }
 
 void AALSBaseCharacter::Server_SetMeshLocationDuringRagdoll_Implementation(FVector MeshLocation)
@@ -1589,14 +1597,13 @@ void AALSBaseCharacter::SprintReleasedAction()
 	SetDesiredGait(EALSGait::Running);
 }
 
-void AALSBaseCharacter::AimPressedAction()
-{
+void AALSBaseCharacter::AimPressedAction() {
 	// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
 	SetRotationMode(EALSRotationMode::Aiming);
+	Server_SetTrueAim(true);
 }
 
-void AALSBaseCharacter::AimReleasedAction()
-{
+void AALSBaseCharacter::AimReleasedAction() {
 	if (ViewMode == EALSViewMode::ThirdPerson)
 	{
 		SetRotationMode(DesiredRotationMode);
@@ -1605,6 +1612,8 @@ void AALSBaseCharacter::AimReleasedAction()
 	{
 		SetRotationMode(EALSRotationMode::LookingDirection);
 	}
+
+	Server_SetTrueAim(false);
 }
 
 void AALSBaseCharacter::CameraPressedAction()

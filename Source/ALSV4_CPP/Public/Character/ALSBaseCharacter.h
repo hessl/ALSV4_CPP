@@ -696,4 +696,15 @@ protected:
 
 	/** We won't use curve based movement on networked games */
 	bool bDisableCurvedMovement = false;
+
+	/* Landon additions */
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsTrueAiming = false;
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetTrueAim(bool IsTrueAiming);
+	
+	FORCEINLINE void Server_SetTrueAim_Implementation(bool IsTrueAiming) {
+		bIsTrueAiming = IsTrueAiming;
+	}
 };

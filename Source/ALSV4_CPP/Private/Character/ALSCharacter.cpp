@@ -33,8 +33,7 @@ void AALSCharacter::ClearHeldObject()
 }
 
 void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass,
-                                 bool bLeftHand, FVector Offset)
-{
+                                 bool bLeftHand, FVector Offset) {
 	ClearHeldObject();
 
 	if (IsValid(NewStaticMesh))
