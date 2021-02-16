@@ -170,7 +170,7 @@ private:
 
 	float GetAnimCurveClamped(const FName& Name, float Bias, float ClampMin, float ClampMax) const;
 
-protected:
+public:
 	/** References */
 	UPROPERTY(BlueprintReadOnly)
 	AALSBaseCharacter* Character = nullptr;
