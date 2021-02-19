@@ -99,11 +99,11 @@ void AALSBaseCharacter::OnBreakfall_Implementation()
 	Replicated_PlayMontage(GetRollAnimation(), 1.35);
 }
 
-void AALSBaseCharacter::Replicated_PlayMontage_Implementation(UAnimMontage* montage, float track)
+void AALSBaseCharacter::Replicated_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
 	// Roll: Simply play a Root Motion Montage.
-	MainAnimInstance->Montage_Play(montage, track);
-	Server_PlayMontage(montage, track);
+	MainAnimInstance->Montage_Play(Montage, PlayRate);
+	Server_PlayMontage(Montage, PlayRate);
 }
 
 void AALSBaseCharacter::BeginPlay()
@@ -111,7 +111,7 @@ void AALSBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	// If we're in networked game, disable curved movement
-	bDisableCurvedMovement = !IsNetMode(ENetMode::NM_Standalone);
+	bEnableNetworkOptimizations = !IsNetMode(ENetMode::NM_Standalone);
 
 	FOnTimelineFloat TimelineUpdated;
 	FOnTimelineEvent TimelineFinished;
@@ -505,17 +505,19 @@ void AALSBaseCharacter::Multicast_MantleStart_Implementation(float MantleHeight,
 	}
 }
 
-void AALSBaseCharacter::Server_PlayMontage_Implementation(UAnimMontage* montage, float track)
+void AALSBaseCharacter::Server_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
-	Multicast_PlayMontage(montage, track);
+	MainAnimInstance->Montage_Play(Montage, PlayRate);
+	ForceNetUpdate();
+	Multicast_PlayMontage(Montage, PlayRate);
 }
 
-void AALSBaseCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* montage, float track)
+void AALSBaseCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
 	if (!IsLocallyControlled())
 	{
 		// Roll: Simply play a Root Motion Montage.
-		MainAnimInstance->Montage_Play(montage, track);
+		MainAnimInstance->Montage_Play(Montage, PlayRate);
 	}
 }
 
@@ -1010,7 +1012,7 @@ void AALSBaseCharacter::UpdateCharacterMovement()
 	}
 
 	// Use the allowed gait to update the movement settings.
-	if (bDisableCurvedMovement)
+	if (bEnableNetworkOptimizations)
 	{
 		// Don't use curves for movement
 		UpdateDynamicMovementSettingsNetworked(AllowedGait);
@@ -1132,7 +1134,7 @@ void AALSBaseCharacter::UpdateGroundedRotation(float DeltaTime)
 	{
 		// Rolling Rotation
 
-		if (bHasMovementInput)
+		if (!bEnableNetworkOptimizations && bHasMovementInput)
 		{
 			SmoothCharacterRotation({0.0f, LastMovementInputRotation.Yaw, 0.0f}, 0.0f, 2.0f, DeltaTime);
 		}

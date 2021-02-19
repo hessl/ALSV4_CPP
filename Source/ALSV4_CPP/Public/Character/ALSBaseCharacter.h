@@ -149,10 +149,10 @@ public:
 
 	/** Rolling Montage Play Replication*/
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Character States")
-	void Server_PlayMontage(UAnimMontage* montage, float track);
+	void Server_PlayMontage(UAnimMontage* Montage, float PlayRate);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "ALS|Character States")
-	void Multicast_PlayMontage(UAnimMontage* montage, float track);
+	void Multicast_PlayMontage(UAnimMontage* Montage, float PlayRate);
 
 	/** Mantling*/
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Character States")
@@ -255,8 +255,8 @@ public:
 
 	/** BP implementable function that called when A Montage starts, e.g. during rolling */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Movement System")
-	void Replicated_PlayMontage(UAnimMontage* montage, float track);
-	virtual void Replicated_PlayMontage_Implementation(UAnimMontage* montage, float track);
+	void Replicated_PlayMontage(UAnimMontage* Montage, float PlayRate);
+	virtual void Replicated_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate);
 
 	/** Implement on BP to get required roll animation according to character's state */
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Movement System")
@@ -695,7 +695,7 @@ protected:
 	FRotator AimingRotation = FRotator::ZeroRotator;
 
 	/** We won't use curve based movement on networked games */
-	bool bDisableCurvedMovement = false;
+	bool bEnableNetworkOptimizations = false;
 
 	/* Landon additions */
 	UPROPERTY(Replicated, BlueprintReadOnly)
