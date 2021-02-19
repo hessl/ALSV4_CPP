@@ -1241,6 +1241,13 @@ bool AALSBaseCharacter::MantleCheck(const FALSMantleTraceSettings& TraceSettings
 		// Not a valid surface to mantle
 		return false;
 	}
+
+	// Can't mantle other players
+	if (HitResult.Actor != nullptr) {
+		if (Cast<AALSBaseCharacter>(HitResult.Actor) != nullptr) {
+			return false;
+		}
+	}
 	
 	if (HitResult.GetComponent() != nullptr) 
 	{
