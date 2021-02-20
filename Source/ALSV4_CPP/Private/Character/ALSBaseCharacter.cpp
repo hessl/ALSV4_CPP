@@ -96,7 +96,7 @@ void AALSBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 void AALSBaseCharacter::OnBreakfall_Implementation()
 {
-	Replicated_PlayMontage(GetRollAnimation(), 1.35);
+	Replicated_PlayMontage(GetRollAnimation(), 1.35f);
 }
 
 void AALSBaseCharacter::Replicated_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
@@ -1684,7 +1684,7 @@ void AALSBaseCharacter::StancePressedAction()
 	if (LastStanceInputTime - PrevStanceInputTime <= RollDoubleTapTimeout)
 	{
 		// Roll
-		Replicated_PlayMontage(GetRollAnimation(), 1.15f);
+		Replicated_PlayMontage(GetRollAnimation(), 1.0f);
 
 		if (Stance == EALSStance::Standing)
 		{

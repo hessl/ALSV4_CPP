@@ -281,9 +281,13 @@ void UALSCharacterAnimInstance::UpdateFootIK(float DeltaSeconds)
 		SetFootOffsets(DeltaSeconds, FName(TEXT("Enable_FootIK_L")), FName(TEXT("ik_foot_l")), FName(TEXT("root")),
 		               FootOffsetLTarget,
 		               FootIKValues.FootOffset_L_Location, FootIKValues.FootOffset_L_Rotation);
+
+
 		SetFootOffsets(DeltaSeconds, FName(TEXT("Enable_FootIK_R")), FName(TEXT("ik_foot_r")), FName(TEXT("root")),
 		               FootOffsetRTarget,
 		               FootIKValues.FootOffset_R_Location, FootIKValues.FootOffset_R_Rotation);
+
+
 		SetPelvisIKOffset(DeltaSeconds, FootOffsetLTarget, FootOffsetRTarget);
 	}
 }
@@ -450,10 +454,10 @@ void UALSCharacterAnimInstance::SetFootOffsets(float DeltaSeconds, FName EnableF
 	// Step 2: Interp the Current Location Offset to the new target value.
 	// Interpolate at different speeds based on whether the new target is above or below the current one.
 	const float InterpSpeed = CurLocationOffset.Z > CurLocationTarget.Z ? 30.f : 15.0f;
-	CurLocationOffset = FMath::VInterpTo(CurLocationOffset, CurLocationTarget, DeltaSeconds, InterpSpeed);
+	CurLocationOffset = CurLocationTarget; //FMath::VInterpTo(CurLocationOffset, CurLocationTarget, DeltaSeconds, InterpSpeed);
 
 	// Step 3: Interp the Current Rotation Offset to the new target value.
-	CurRotationOffset = FMath::RInterpTo(CurRotationOffset, TargetRotOffset, DeltaSeconds, 30.0f);
+	CurRotationOffset = CurRotationOffset; // FMath::RInterpTo(CurRotationOffset, TargetRotOffset, DeltaSeconds, 30.0f);
 }
 
 void UALSCharacterAnimInstance::RotateInPlaceCheck()
