@@ -1599,6 +1599,7 @@ void AALSBaseCharacter::JumpReleasedAction()
 void AALSBaseCharacter::SprintPressedAction()
 {
 	SetDesiredGait(EALSGait::Sprinting);
+	SprintStart();
 }
 
 void AALSBaseCharacter::SprintReleasedAction()
@@ -1791,4 +1792,8 @@ void AALSBaseCharacter::OnRep_ViewMode(EALSViewMode PrevViewMode)
 void AALSBaseCharacter::OnRep_OverlayState(EALSOverlayState PrevOverlayState)
 {
 	OnOverlayStateChanged(PrevOverlayState);
+}
+
+void AALSBaseCharacter::SprintStart_Implementation() {
+
 }

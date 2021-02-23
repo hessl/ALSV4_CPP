@@ -707,4 +707,7 @@ protected:
 	FORCEINLINE void Server_SetTrueAim_Implementation(bool IsTrueAiming) {
 		bIsTrueAiming = IsTrueAiming;
 	}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SprintStart();
 };
