@@ -277,7 +277,8 @@ void AALSBaseCharacter::RagdollEnd()
 		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		MainAnimInstance->Montage_Play(GetGetUpAnimation(bRagdollFaceUp),
 		                               1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
-		GetMesh()->AttachTo(GetCapsuleComponent(), NAME_None, EAttachLocation::SnapToTargetIncludingScale, true);
+		//GetMesh()->AttachTo(GetCapsuleComponent(), NAME_None, EAttachLocation::SnapToTargetIncludingScale, true);
+		GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), NAME_None);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -92.0), FQuat(FRotator(0, -90, 0)));
 	}
 	else
